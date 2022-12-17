@@ -6,10 +6,10 @@ public class Employee {
 
     private String fio;
     private String department;
-    private int salary;
+    private double salary;
     public static int id = 0;
 
-    public Employee (String fio, String department, int salary) {
+    public Employee (String fio, String department, double salary) {
         this.fio = fio;
         this.department = department;
         this.salary = salary;
@@ -31,7 +31,7 @@ public class Employee {
         return salary;
     }
 
-    public void setSalary(int salary) {
+    public void setSalary(double salary) {
         this.salary = salary;
     }
 
