@@ -7,13 +7,15 @@ public class Employee {
     private String fio;
     private String department;
     private double salary;
-    public static int id = 0;
+    private int id;
+    public static int counter = 0;
 
     public Employee (String fio, String department, double salary) {
         this.fio = fio;
         this.department = department;
         this.salary = salary;
-        id++;
+        this.id = counter+1;
+        counter ++;
     }
 
     public String getFio() {
@@ -34,9 +36,12 @@ public class Employee {
     public void setSalary(double salary) {
         this.salary = salary;
     }
+    public int getId(){
+        return id;
+    }
 
     @Override
     public String toString() {
-        return "Ф.И.О.: " + fio + " / Отдел: " + department + " / Заработная плата: " + divider.format(salary) + " руб.";
+        return id + ". Ф.И.О.: " + fio + " / Отдел: " + department + " / Заработная плата: " + divider.format(salary) + " руб.";
     }
 }

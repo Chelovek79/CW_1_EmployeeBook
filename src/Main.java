@@ -1,13 +1,13 @@
 import java.text.NumberFormat;
 import java.util.Locale;
 import java.util.Scanner;
-import java.util.logging.SocketHandler;
 
 public class Main {
+    private static Scanner in = new Scanner(System.in);
+    private static NumberFormat divider = NumberFormat.getInstance(new Locale("ru", "RU"));
 
     public static void returnMenu (int a) {
         System.out.println("Желаете продолжить: 1 - 'Да'; Любое число - 'Нет'");
-        Scanner in = new Scanner(System.in);
         int y_n = in.nextInt();
         if (y_n == 1) {
             a = 0;
@@ -18,7 +18,8 @@ public class Main {
     public static void printAllWorkers (Employee[] employees, String nameOffice) {
         for (int i = 0; i < employees.length; i++) {
             if (employees[i].getDepartment().equals(nameOffice)) {
-                System.out.println(employees[i].getFio() + " - заработная плата " + employees[i].getSalary() + " руб.");
+                System.out.println(employees[i].getFio() + " - заработная плата " +
+                        divider.format(employees[i].getSalary()) + " руб.");
             }
         }
         System.out.println("");
@@ -35,10 +36,12 @@ public class Main {
         }
         averageSalary = (double) Math.round((salaryFund / sumWorkers) *100.0)/100.0;
         if (f_a == 0) {
-            System.out.println("Фонд заработной платы отдела '" + nameOffice + "' - " + salaryFund + " руб.");
+            System.out.println("Фонд заработной платы отдела '" + nameOffice + "' - " +
+                    divider.format(salaryFund) + " руб.");
         }
         if (f_a == 1) {
-            System.out.println("Среднемесячная заработная плата отдела '" + nameOffice  + "' - " + averageSalary + " руб.");
+            System.out.println("Среднемесячная заработная плата отдела '" + nameOffice  + "' - " +
+                    divider.format(averageSalary) + " руб.");
         }
         System.out.println("");
     }
@@ -60,86 +63,103 @@ public class Main {
             }
         }
         if (min_max == 0) {
-            System.out.println(employees[minId].getFio() + " - заработная плата: " + beginSalaryMin + " руб.");
+            System.out.println(employees[minId].getFio() + " - заработная плата: " +
+                    divider.format(beginSalaryMin) + " руб.");
         }
         if (min_max == 1) {
-            System.out.println(employees[maxId].getFio() + " - заработная плата: " + beginSalaryMax + " руб.");
+            System.out.println(employees[maxId].getFio() + " - заработная плата: " +
+                    divider.format(beginSalaryMax) + " руб.");
         }
         System.out.println("");
     }
-    public static void indexationOfWagesOffice (Employee[] employees, String nameOffice, double index) {
-        NumberFormat divider = NumberFormat.getInstance(new Locale("ru", "RU")); // Разделяем на 1000;
-        System.out.println("Зарплата после индексации на " + index + " % :");
+    public static void indexationOfWagesOffice (Employee[] employees, String nameOffice) {
+        System.out.print("Введите значение индексации (%): ");
+        double wageIndexationOffice = in.nextDouble();
+        System.out.println("\n Зарплата после индексации на " + wageIndexationOffice + " % :");
         for (int i = 0; i < employees.length; i++) {
             if (employees[i].getDepartment().equals(nameOffice)) {
-                double salary = Math.round(((employees[i].getSalary() * index / 100) * 100.0) / 100.0);
+                double salary = Math.round(((employees[i].getSalary() * wageIndexationOffice / 100) * 100.0) / 100.0);
                 employees[i].setSalary(employees[i].getSalary() + salary);
-                System.out.println("    " + employees[i].getFio() + " " + divider.format(employees[i].getSalary()) + " руб.");
+                System.out.println("    " + employees[i].getFio() + " " +
+                        divider.format(employees[i].getSalary()) + " руб.");
             }
         }
         System.out.println("");
     }
-    public static void getMinSalary (Employee[] employees, double idMinSalary) {
-        int outemployees = 0;
-        for (int i = 0; i < employees.length; i++) {
-            if (employees[i].getSalary() < idMinSalary) {
-                System.out.println("   " + (i+1) + ". " + employees[i].getFio() + " " + " - заработная плата " + employees[i].getSalary()+ " руб.");
-            outemployees ++;
+    public static void getMinMaxSalary (Employee[] employees, int idMinMaxSalary) {
+        boolean b = true;
+        double MinMaxSalary = 0;             // Верхняя (нижняя) граница минимальной (максимальной) заработной платы.
+        int outemployees = 0;                // Счётчик работников имеющих зарплату за верхней (нижней) границей.
+        while (b) {
+            System.out.print("Введите интересующую Вас зарплату (руб.): ");
+            MinMaxSalary = in.nextDouble();
+            if (MinMaxSalary < 0) {
+                System.out.println("Ошибочка... Ещё разок ;)))");
+            } else {
+                b = false;
             }
         }
-        if (outemployees == 0) {
-            System.out.println("Сотрудников с заработной платой менее " + idMinSalary + " руб. - 'НЕТ'.");
+        if (idMinMaxSalary == 0) {
+            for (int i = 0; i < employees.length; i++) {
+                if (employees[i].getSalary() < MinMaxSalary) {
+                    System.out.println("   " + employees[i].getId() + ". " + employees[i].getFio() + " " + " - заработная плата " +
+                            divider.format(employees[i].getSalary()) + " руб.");
+                    outemployees++;
+                }
+            }
+            if (outemployees == 0) {
+                System.out.println("Сотрудников с заработной платой менее " +
+                        divider.format(MinMaxSalary) + " руб. - 'НЕТ'.");
+            }
+        }
+        if (idMinMaxSalary == 1) {
+            for (int i = 0; i < employees.length; i++) {
+                if (employees[i].getSalary() > MinMaxSalary) {
+                    System.out.println("   " + employees[i].getId() + ". " + employees[i].getFio() + " " + " - заработная плата " +
+                            divider.format(employees[i].getSalary()) + " руб.");
+                    outemployees++;
+                }
+            }
+            if (outemployees == 0) {
+                System.out.println("Сотрудников с заработной платой более " +
+                        divider.format(MinMaxSalary) + " руб. - 'НЕТ'.");
+            }
         }
         System.out.println("");
     }
-    public static void getMaxSalary (Employee[] employees, double idMaxSalary) {
-        int outemployees = 0;
-        for (int i = 0; i < employees.length; i++) {
-            if (employees[i].getSalary() > idMaxSalary) {
-                System.out.println("   " + (i+1) + ". " + employees[i].getFio() + " " + " - заработная плата " + employees[i].getSalary()+ " руб.");
-            outemployees ++;
-            }
+    public static void indexationOfWages (Employee[] employees) {
+        System.out.print("Введите значение индексации (%): ");
+        double wageIndexation = in.nextDouble();
+        if (wageIndexation < 0) {
+            throw new RuntimeException("Вы издеваетесь ... ;)))");
         }
-        if (outemployees == 0) {
-            System.out.println("Сотрудников с заработной платой более " + idMaxSalary + " руб. - 'НЕТ'.");
-        }
-        System.out.println("");
-    }
-    public static void indexationOfWages (Employee[] employees, double index) {
-        NumberFormat divider = NumberFormat.getInstance(new Locale("ru", "RU")); // Разделяем на 1000;
-        System.out.println("Зарплата после индексации на " + index + " % :");
+        System.out.println("\n Зарплата после индексации на " + wageIndexation + " % :");
         for (int i = 0; i < employees.length; i++) {
-            double salary = Math.round(((employees[i].getSalary() * index / 100)*100.0)/100.0);
+            double salary = Math.round(((employees[i].getSalary() * wageIndexation / 100)*100.0)/100.0);
             employees[i].setSalary(employees[i].getSalary() + salary);
-            System.out.println("    " + employees[i].getFio() + " " + divider.format(employees[i].getSalary()) + " руб.");
+            System.out.println("    " + employees[i].getFio() + " " +
+                    divider.format(employees[i].getSalary()) + " руб.");
         }
+        System.out.println("");
     }
     public static void main(String[] args) {
 
-        double wageIndexation = 0;          // Индексация заработной платы предприятия в "%".
-        double wageIndexationOffice = 0;    // Индексация заработной платы отдела в "%"
-        double idMinSalary = 0;             // Верхняя граница минимальной заработной платы.
-        double idMaxSalary = 0;             // Нижняя граница максимальной заработной платы.
         int a = 0;                          // Критерий продолжения работы с меню.
         boolean b = true;                   // Критерий продолжения работы при ошибочно введённых данных.
         String nameOffice = "";             // Имя отдела.
 
-        NumberFormat divider = NumberFormat.getInstance(new Locale("ru", "RU")); // Разделяем на 1000;
-
         Employee[] employees = new Employee[10];
 
-        employees[Employee.id] = new Employee("Матвеева Ольга Васильевна", "Управление", 150_000);
-        employees[Employee.id] = new Employee("Бояркин Сергей Витальевич", "Управление", 110_000);
-        employees[Employee.id] = new Employee("Старикова Инна Степановна", "Бухгалтерия", 75_000);
-        employees[Employee.id] = new Employee("Иванова Ирина Евгеньевна", "Бухгалтерия", 55_000);
-        employees[Employee.id] = new Employee("Жуков Василий Петрович", "Склад", 50_000);
-        employees[Employee.id] = new Employee("Колесникова Алефтина Сергеевна", "Склад", 45_000);
-        employees[Employee.id] = new Employee("Антонов Сергей Павлович", "Доставка", 60_000);
-        employees[Employee.id] = new Employee("Фролов Геннадий Николаевич", "Доставка", 60_000);
-        employees[Employee.id] = new Employee("Афанасьев Артём Павлович", "Логистика", 70_000);
-        employees[Employee.id] = new Employee("Степанов Иван Аркадьевич", "Логистика", 65_000);
-
-        Scanner in = new Scanner(System.in);
+        employees[Employee.counter] = new Employee("Матвеева Ольга Васильевна", "Управление", 150_000);
+        employees[Employee.counter] = new Employee("Бояркин Сергей Витальевич", "Управление", 110_000);
+        employees[Employee.counter] = new Employee("Старикова Инна Степановна", "Бухгалтерия", 75_000);
+        employees[Employee.counter] = new Employee("Иванова Ирина Евгеньевна", "Бухгалтерия", 55_000);
+        employees[Employee.counter] = new Employee("Жуков Василий Петрович", "Склад", 50_000);
+        employees[Employee.counter] = new Employee("Колесникова Алефтина Сергеевна", "Склад", 45_000);
+        employees[Employee.counter] = new Employee("Антонов Сергей Павлович", "Доставка", 60_000);
+        employees[Employee.counter] = new Employee("Фролов Геннадий Николаевич", "Доставка", 60_000);
+        employees[Employee.counter] = new Employee("Афанасьев Артём Павлович", "Логистика", 70_000);
+        employees[Employee.counter] = new Employee("Степанов Иван Аркадьевич", "Логистика", 65_000);
 
         System.out.println("Справочник по сотрудникам предприятия 'Сувениры Магадана'.");
 
@@ -157,43 +177,16 @@ public class Main {
             }
             switch (key) {
                 case 1:
-                    System.out.print("Введите значение индексации (%): ");
-                    wageIndexation = in.nextDouble();
-                    if (wageIndexation < 0) {
-                        throw new RuntimeException("Вы издеваетесь ... ;)))");
-                    }
-                    indexationOfWages(employees, wageIndexation);
-                    System.out.println("-----------------------------");
+                    indexationOfWages(employees);
                     break;
-
                 case 2:
-                    b = true;
-                    while (b) {
-                        System.out.print("Введите интересующую Вас зарплату (руб.): ");
-                        idMinSalary = in.nextDouble();
-                        if (idMinSalary < 0) {
-                            System.out.println("Ошибочка... Ещё разок ;)))");
-                        } else {
-                            b = false;
-                        }
-                    }
-                    getMinSalary(employees, idMinSalary);
+                    int idMinMaxSalary = 0;  // Криитерий для вычисления варианта в методе.
+                    getMinMaxSalary(employees, idMinMaxSalary);
                     break;
-
                 case 3:
-                    b = true;
-                    while (b) {
-                        System.out.print("Введите интересующую Вас зарплату (руб.): ");
-                        idMaxSalary = in.nextDouble();
-                        if (idMaxSalary < 0) {
-                            System.out.println("Ошибочка... Ещё разок ;)))");
-                        } else {
-                            b = false;
-                        }
-                    }
-                    getMaxSalary(employees, idMaxSalary);
+                    idMinMaxSalary = 1;
+                    getMinMaxSalary(employees, idMinMaxSalary);
                     break;
-
                 case 4:
                     b = true;
                     while (b) {
@@ -241,7 +234,7 @@ public class Main {
                                     b = false;
                                     switch (menuOffice) {
                                         case 1:
-                                            int min_max = 0;
+                                            int min_max = 0;        // Криитерий для вычисления варианта в методе.
                                             getofficeMinMax (employees, nameOffice, min_max);
                                             break;
                                         case 2:
@@ -249,7 +242,7 @@ public class Main {
                                             getofficeMinMax (employees, nameOffice, min_max);
                                             break;
                                         case 3:
-                                            int f_a = 0;
+                                            int f_a = 0;            // Криитерий для вычисления варианта в методе.
                                             calculateSalaryFund_Average(employees, nameOffice, f_a);
                                             break;
                                         case 4:
@@ -257,9 +250,7 @@ public class Main {
                                             calculateSalaryFund_Average(employees, nameOffice, f_a);
                                             break;
                                         case 5:
-                                            System.out.print("Введите значение индексации (%): ");
-                                            wageIndexationOffice = in.nextDouble();
-                                            indexationOfWagesOffice (employees, nameOffice, wageIndexationOffice);
+                                            indexationOfWagesOffice (employees, nameOffice);
                                             break;
                                         case 6:
                                             printAllWorkers(employees, nameOffice);
